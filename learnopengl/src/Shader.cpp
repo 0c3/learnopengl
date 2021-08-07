@@ -20,10 +20,10 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     fp = fopen(vertexPath, "rb");
     if (!fp)
     {
-        char* str = (char*)malloc(13 + strlen(vertexPath));
+        char* str = (char*)malloc(12 + strlen(vertexPath));
         if (str)
         {
-            strcpy(str, "res/shaders/");
+            strcpy(str, "res/shader/");
             fp = fopen(strcat(str, vertexPath), "rb");
             free(str);
         }
@@ -70,10 +70,10 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath)
     fp = fopen(fragmentPath, "rb");
     if (!fp)
     {
-        char* str = (char*)malloc(13 + strlen(fragmentPath));
+        char* str = (char*)malloc(12 + strlen(fragmentPath));
         if (str)
         {
-            strcpy(str, "res/shaders/");
+            strcpy(str, "res/shader/");
             fp = fopen(strcat(str, fragmentPath), "rb");
             free(str);
         }

@@ -5,8 +5,9 @@
 #include <stb_image.h>
 #include <string.h>
 
-Texture::Texture(const char* path, bool flipVertically)
+Texture::Texture(const char* path, uint8_t textureType, bool flipVertically)
 {
+	type = textureType;
 	stbi_set_flip_vertically_on_load(flipVertically);
 
 	glGenTextures(1, &ID);
@@ -54,14 +55,12 @@ void Texture::Update()
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); // glTexImage recreates the entire texture
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data); // glTexSubImage only updates the pixel data
 	glGenerateMipmap(GL_TEXTURE_2D); // temporary - this is slow i think
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::SetParameter(uint32_t parameter, int32_t value) const
 {
 	glBindTexture(GL_TEXTURE_2D, ID);
 	glTexParameteri(GL_TEXTURE_2D, parameter, value);
-	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 void Texture::Bind(uint8_t unit) const

@@ -3,11 +3,53 @@ out vec4 FragColor;
 
 in vec2 TexCoords;
 
+uniform sampler2D texture_diffuse0;
 uniform sampler2D texture_diffuse1;
+
+uniform float time;
+
+uint hash(uint x)
+{
+    x += (x << 10u);
+    x ^= (x >> 6u);
+    x += (x << 3u);
+    x ^= (x >> 11u);
+    x += (x << 15u);
+    return x;
+}
+
+uint hash( uvec2 v ) { return hash( v.x ^ hash(v.y)                         ); }
+uint hash( uvec3 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z)             ); }
+uint hash( uvec4 v ) { return hash( v.x ^ hash(v.y) ^ hash(v.z) ^ hash(v.w) ); }
+
+float floatConstruct( uint m )
+{
+    const uint ieeeMantissa = 0x007FFFFFu;
+    const uint ieeeOne      = 0x3F800000u;
+
+    m &= ieeeMantissa;
+    m |= ieeeOne;
+
+    float f = uintBitsToFloat( m );
+    return f - 1.0;
+}
+
+float random( float x ) { return floatConstruct(hash(floatBitsToUint(x))); }
+float random( vec2  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+float random( vec3  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+float random( vec4  v ) { return floatConstruct(hash(floatBitsToUint(v))); }
+
+float rando(vec2 co){
+    return fract(sin(dot(co, vec2(12.9898, 78.233))) * 43758.5453);
+}
 
 void main()
 {    
-    FragColor = texture(texture_diffuse1, TexCoords);
+    vec3  inputs = vec3( gl_FragCoord.xy, time ); // Spatial and temporal inputs
+    float rand   = random( inputs );              // Random per-pixel value
+    vec3  luma   = vec3( rand );                  // Expand to RGB
+
+    FragColor = vec4( luma, 1.0 );
 }
 
 /*#version 330 core

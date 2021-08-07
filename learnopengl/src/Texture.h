@@ -2,10 +2,18 @@
 
 #include <stdint.h>
 
+namespace TextureType
+{
+	enum TextureType {
+		Diffuse = 0,
+		Specular = 1
+	};
+}
+
 class Texture
 {
 public:
-	Texture(const char* path, bool flipVertically = true);
+	Texture(const char* path, uint8_t textureType = TextureType::Diffuse, bool flipVertically = true);
 	~Texture();
 
 	void Update();
@@ -22,4 +30,5 @@ public:
 	uint16_t width;
 	uint16_t height;
 	uint8_t numChannels;
+	uint8_t type;
 };

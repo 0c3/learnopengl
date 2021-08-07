@@ -9,6 +9,8 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
+#include "Mesh.h"
+
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
 
@@ -101,7 +103,7 @@ int main()
     glViewport(0, 0, 800, 600);
     glEnable(GL_DEPTH_TEST);
 
-    float vertices[] = {
+    /*float vertices[] = {
         // positions          // normals           // texture coords
         -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
          0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  1.0f, 0.0f,
@@ -168,17 +170,30 @@ int main()
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
 
     glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(0);*/
 
     //Texture diffuseMap("container2.png");
     //Texture specularMap("container2_specular.png");
     //Texture emission("matrix.jpg");
 
-    Shader objectShader("shader.vs", "shader.fs");
-    
-    objectShader.Use();
+    vertex_t verts[] = {
+        { glm::vec3(0.5f, 0.5f, 0.0f), glm::vec3(1.0f), glm::vec2(1.0f, 1.0f) },
+        { glm::vec3(0.5f, -0.5f, 0.0f), glm::vec3(1.0f), glm::vec2(1.0f, 0.0f) },
+        { glm::vec3(-0.5f, -0.5f, 0.0f), glm::vec3(1.0f), glm::vec2(0.0f, 0.0f) },
+        { glm::vec3(-0.5f,  0.5f, 0.0f), glm::vec3(1.0f), glm::vec2(0.0f, 1.0f) }
+    };
 
-    Shader ourShader("res/shaders/shader.vs", "res/shaders/shader.fs");
+    uint32_t indices[] = {
+        0, 1, 3,
+        1, 2, 3
+    };
+    
+    Texture tex("tex.jpg");
+
+    //Mesh mesh(verts, sizeof(verts) / sizeof(vertex_t), indices, sizeof(indices) / sizeof(uint32_t), &tex, 0);
+    Mesh mesh("icotri.obj");
+
+    Shader shader("shader.vs", "shader.fs");
 
     float previousTime = glfwGetTime();
     int frameCount = 0;
@@ -202,36 +217,27 @@ int main()
         processInput(window);
         if (glfwGetKey(window, GLFW_KEY_R) == GLFW_PRESS)
         {
-            objectShader.Reload("shader.vs", "shader.fs") ? printf("shader reloaded\n") : printf("ERROR: shader reload failed\n");;     
+            shader.Reload("shader.vs", "shader.fs") ? printf("shader reloaded\n") : printf("ERROR: shader reload failed\n");;
         }
 
-        glClearColor(1.0f, 0.0f, 0.0f, 1.0f);
+        glClearColor(0.07f, 0.07f, 0.07f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-        // don't forget to enable shader before setting uniforms
-        ourShader.Use();
+        shader.Use();
 
         // view/projection transformations
         glm::mat4 VP = camera.vpMatrix();
-        ourShader.SetValue("VP", VP);
+        shader.SetValue("VP", VP);
 
-        // render the loaded model
         glm::mat4 model = glm::mat4(1.0f);
-        model = glm::translate(model, glm::vec3(0.0f, 0.0f, 0.0f)); // translate it down so it's at the center of the scene
-        model = glm::scale(model, glm::vec3(1.0f, 1.0f, 1.0f));	// it's a bit too big for our scene, so scale it down
-        ourShader.SetValue("model", model);
+        //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
+        shader.SetValue("model", model);
+        shader.SetValue("time", (float)glfwGetTime());
+        mesh.Draw(shader);
 
-        // glfw: swap buffers and poll IO events (keys pressed/released, mouse moved etc.)
-        // -------------------------------------------------------------------------------
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
-
-    //free(positions);
-
-    glDeleteVertexArrays(1, &VAO);
-    glDeleteVertexArrays(1, &lightVAO);
-    glDeleteBuffers(1, &VBO);
 
     glfwTerminate();
     return 0;
