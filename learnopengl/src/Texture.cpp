@@ -20,14 +20,14 @@ Texture::Texture(const char* path, uint8_t textureType, bool flipVertically)
 
 	{
 		int32_t tempWidth, tempHeight, tempNumChannels;
-		data = stbi_load(path, &tempWidth, &tempHeight, &tempNumChannels, 4);
+		data = (color_t*)stbi_load(path, &tempWidth, &tempHeight, &tempNumChannels, 4);
 		if (!data)
 		{
 			char* str = (char*)malloc(5 + strlen(path));
 			if (str)
 			{
 				strcpy(str, "res/");
-				data = stbi_load(strcat(str, path), &tempWidth, &tempHeight, &tempNumChannels, 4);
+				data = (color_t*)stbi_load(strcat(str, path), &tempWidth, &tempHeight, &tempNumChannels, 4);
 				free(str);
 			}
 		}
@@ -41,25 +41,58 @@ Texture::Texture(const char* path, uint8_t textureType, bool flipVertically)
 	}
 	else
 		perror(path), exit(1);
+	glBindTexture(GL_TEXTURE_2D, 0);
+}
+
+Texture::Texture(uint16_t _width, uint16_t _height, uint8_t textureType)
+{
+	type = textureType;
+	width = _width;
+	height = _height;
+	numChannels = 4;
+
+	glGenTextures(1, &ID);
+	glBindTexture(GL_TEXTURE_2D, ID);
+
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+	data = (color_t*)malloc(width * height * numChannels);
+
+	if (data)
+	{
+		glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data);
+		glGenerateMipmap(GL_TEXTURE_2D);
+	}
+	else
+		perror("texture creation failed"), exit(1);
+	glBindTexture(GL_TEXTURE_2D, 0);
 }
 
 Texture::~Texture()
 {
-	stbi_image_free(data);
+	free(data);
 	glDeleteTextures(1, &ID);
 }
 
-void Texture::Update()
+void Texture::Flush()
 {
-	glBindTexture(GL_TEXTURE_2D, ID);
+	//glBindTexture(GL_TEXTURE_2D, ID);
 	//glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, data); // glTexImage recreates the entire texture
 	glTexSubImage2D(GL_TEXTURE_2D, 0, 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, data); // glTexSubImage only updates the pixel data
+	//glGenerateMipmap(GL_TEXTURE_2D); // temporary - this is slow i think
+}
+
+void Texture::GenMipmaps()
+{
 	glGenerateMipmap(GL_TEXTURE_2D); // temporary - this is slow i think
 }
 
 void Texture::SetParameter(uint32_t parameter, int32_t value) const
 {
-	glBindTexture(GL_TEXTURE_2D, ID);
+	//glBindTexture(GL_TEXTURE_2D, ID);
 	glTexParameteri(GL_TEXTURE_2D, parameter, value);
 }
 

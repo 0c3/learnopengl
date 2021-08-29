@@ -170,12 +170,15 @@
     <ClCompile Include="src\FlyCam.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\Mesh.cpp" />
+    <ClCompile Include="src\Object.cpp" />
+    <ClCompile Include="src\ObjectWorld.cpp" />
     <ClCompile Include="src\pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
     </ClCompile>
+    <ClCompile Include="src\PhysicsWorld.cpp" />
     <ClCompile Include="src\Shader.cpp" />
     <ClCompile Include="src\Texture.cpp" />
     <ClCompile Include="vendor\stb_image\stb_image.cpp" />
@@ -184,7 +187,10 @@
     <ClInclude Include="src\FlyCam.h" />
     <ClInclude Include="src\fnv.h" />
     <ClInclude Include="src\Mesh.h" />
+    <ClInclude Include="src\Object.h" />
+    <ClInclude Include="src\ObjectWorld.h" />
     <ClInclude Include="src\pch.h" />
+    <ClInclude Include="src\PhysicsWorld.h" />
     <ClInclude Include="src\Shader.h" />
     <ClInclude Include="src\Texture.h" />
   </ItemGroup>

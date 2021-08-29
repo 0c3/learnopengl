@@ -10,6 +10,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "Mesh.h"
+#include "ObjectWorld.h"
 
 float deltaTime = 0.0f;
 float lastFrame = 0.0f;
@@ -184,16 +185,37 @@ int main()
     };
 
     uint32_t indices[] = {
-        0, 1, 3,
-        1, 2, 3
+        0, 1, 2,
+        2, 3, 0
     };
     
-    Texture tex("tex.jpg");
-
-    //Mesh mesh(verts, sizeof(verts) / sizeof(vertex_t), indices, sizeof(indices) / sizeof(uint32_t), &tex, 0);
-    Mesh mesh("icotri.obj");
-
+    Texture tex = Texture(256, 256);
     Shader shader("shader.vs", "shader.fs");
+
+    for (int i = 0; i < tex.width * tex.height; i++)
+    {
+        tex.data[i].r = 255;
+        tex.data[i].g = 150;
+        tex.data[i].b = 190;
+        tex.data[i].a = 255;
+
+        color_t test = color_t(255, 255, 255, 255);
+    }
+
+    tex.Bind();
+    tex.Flush();
+    tex.GenMipmaps();
+
+    Mesh mesh(&shader, &tex, 1);
+
+    ObjectWorld objectWorld;
+
+    for (int i = 0; i < 32; i++)
+    {
+        Object& obj = objectWorld.CreateObject();
+        obj.mesh = &mesh;
+        obj.transform.pos = glm::vec3((rand() % 20) - 10, (rand() % 20) - 10, (rand() % 20) - 10);
+    }
 
     float previousTime = glfwGetTime();
     int frameCount = 0;
@@ -208,7 +230,7 @@ int main()
         if (currentTime - previousTime >= 1.0f)
         {
             // Display the frame count here any way you want.
-            //printf("%d\n", frameCount);
+            printf("%d\n", frameCount);
 
             frameCount = 0;
             previousTime = currentTime;
@@ -229,11 +251,7 @@ int main()
         glm::mat4 VP = camera.vpMatrix();
         shader.SetValue("VP", VP);
 
-        glm::mat4 model = glm::mat4(1.0f);
-        //model = glm::rotate(model, glm::radians(-90.0f), glm::vec3(1.0f, 0.0f, 0.0f));
-        shader.SetValue("model", model);
-        shader.SetValue("time", (float)glfwGetTime());
-        mesh.Draw(shader);
+        objectWorld.Update(deltaTime);
 
         glfwSwapBuffers(window);
         glfwPollEvents();

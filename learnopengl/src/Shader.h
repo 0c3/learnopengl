@@ -16,7 +16,7 @@ namespace shader_internal
 class Shader
 {
 public:
-	Shader(const char* vertexPath, const char* fragmentPath);
+	Shader(const char* vertexPath = "shader.vs", const char* fragmentPath = "shader.fs");
 	~Shader();
 
 	bool Reload(const char* vertexPath, const char* fragmentPath);
